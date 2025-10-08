@@ -20,17 +20,17 @@ jobs:
         with:
           php-version: '8.2'
 
-      # 3️⃣ Déploiement FTP (avec port configuré)
+      # 3️⃣ Déploiement FTP
       - name: Deploy to FTP server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps     # ou ftp selon ton serveur
+          protocol: ftps
           port: ${{ secrets.FTP_PORT }}
-          server-dir: /www/mon-site/   # chemin distant à adapter
-          local-dir: ./                # ce que tu veux envoyer
+          server-dir: /R507/
+          local-dir: ./
           exclude: |
             .git*
             .github/
