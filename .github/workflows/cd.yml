@@ -1,25 +1,63 @@
-name: CD - Deploy to FTP
+name: CI + CD
 
 on:
   push:
     branches:
-      - master  # branche de déploiement
+      - master  # branche sur laquelle CI/CD s’exécute
 
 jobs:
-  deploy:
-    needs: [test]
+  # ---------------------------
+  # Job 1 : CI - tests PHPUnit
+  # ---------------------------
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1 Récupération du code source
+      # 1 Récupérer le code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2 Installation de PHP et des dépendances Composer
+      # 2 Installer PHP et extensions nécessaires
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3
+
+      # 3 Installer Composer
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # 4 Créer la base de test SQLite
+      - name: Prepare test database
+        run: |
+          php bin/console doctrine:database:create --env=test || true
+          php bin/console doctrine:schema:update --env=test --force
+
+      # 5 Lancer les tests
+      - name: Run PHPUnit tests
+        run: php bin/phpunit
+
+  # ---------------------------
+  # Job 2 : CD - déploiement FTP
+  # ---------------------------
+  deploy:
+    needs: test          # ne s’exécute que si 'test' réussit
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1 Récupérer le code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2 Installer PHP et Composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
       # 3 Déploiement FTP
       - name: Deploy to FTP server
@@ -28,8 +66,9 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
           port: ${{ secrets.FTP_PORT }}
+          protocol: ftp
+          timeout: 60000
           server-dir: /www/R507/
           local-dir: ./
           exclude: |
