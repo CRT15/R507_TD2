@@ -8,6 +8,7 @@
          failOnNotice="true"
          failOnWarning="true"
          cacheDirectory=".phpunit.cache"
+         bootstrap="tests/bootstrap.php"
 >
     <php>
         <ini name="display_errors" value="1" />

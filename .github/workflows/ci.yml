@@ -1,9 +1,43 @@
 name: CI
+
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - run: composer install
-      - run: php bin/phpunit
+      # 1️⃣ Récupère ton code source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Installe PHP (avec extensions nécessaires)
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3
+          coverage: none
+
+      # 3️⃣ Met en cache les dépendances Composer (plus rapide)
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # 4️⃣ Installe les dépendances PHP
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      # 5️⃣ Prépare la base SQLite de test
+      - name: Prepare test database
+        run: |
+          php bin/console doctrine:database:create --env=test
+          php bin/console doctrine:schema:update --env=test --force
+
+      # 6️⃣ Lance les tests PHPUnit
+      - name: Run PHPUnit tests
+        run: php bin/phpunit
