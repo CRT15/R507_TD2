@@ -10,17 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupération du code source
+      # 1 Récupération du code source
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Installation de PHP et des dépendances Composer
+      # 2 Installation de PHP et des dépendances Composer
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      # 3️⃣ Déploiement FTP
+      # 3 Déploiement FTP
       - name: Deploy to FTP server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
