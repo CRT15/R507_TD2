@@ -1,0 +1,44 @@
+name: CD - Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main  # branche de déploiement
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Récupération du code source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Installation de PHP et des dépendances Composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      # 3️⃣ Déploiement FTP (avec port configuré)
+      - name: Deploy to FTP server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps     # ou ftp selon ton serveur
+          port: ${{ secrets.FTP_PORT }}
+          server-dir: /www/mon-site/   # chemin distant à adapter
+          local-dir: ./                # ce que tu veux envoyer
+          exclude: |
+            .git*
+            .github/
+            vendor/
+            node_modules/
+            tests/
+            var/cache/
+            var/log/
