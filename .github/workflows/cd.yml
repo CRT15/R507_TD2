@@ -29,7 +29,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: ${{ secrets.FTP_PORT }}
-          server-dir: /R507/
+          server-dir: /www/R507/
           local-dir: ./
           exclude: |
             .git*
