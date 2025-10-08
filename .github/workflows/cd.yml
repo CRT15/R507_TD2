@@ -3,7 +3,7 @@ name: CD - Deploy to FTP
 on:
   push:
     branches:
-      - main  # branche de déploiement
+      - master  # branche de déploiement
 
 jobs:
   deploy:
@@ -19,9 +19,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-
-      - name: Install dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
       # 3️⃣ Déploiement FTP (avec port configuré)
       - name: Deploy to FTP server
